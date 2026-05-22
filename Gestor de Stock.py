@@ -1,8 +1,7 @@
 import random
 from functools import reduce
 import re
-#Sas 
-#Funcion para añadir un mail
+
 def validar_usuario():
     """
     Función: validar_usuario
@@ -34,6 +33,16 @@ def cargar_datos(stock):
 
     print("\n===== CARGAR DATOS =====")
 
+    name = input("Nombre del colaborador: ")
+
+    dni = input("DNI (8 digitos): ")
+    while not re.match(r"^\d{8}$", dni):
+        print("Error. DNI fuera de rango.")
+        dni = input("DNI (8 digitos): ")
+    dni = int(dni)
+
+    colaborador = tuple([name, dni])
+
     id = random.randint(100, 999)
 
     #Genera otro ID si el anterior ya existe en la matriz
@@ -41,20 +50,17 @@ def cargar_datos(stock):
         print("\nID repetido, generando otro...")
         id = random.randint(100, 999)
 
-    nombre = input("Ingresar nombre: ")
-
+    nombre = input("Ingresar nombre del producto: ")
     #Verifica que el nombre no se repita
     while nombre in [producto["nombre"] for producto in stock]:
         print("Nombre repetido")
-        nombre = input("Reingresar nombre: ")
+        nombre = input("Reingresar nombre del producto: ")
 
     precio = input("Precio por unidad: ")
-
     #Validación de precio en float con expresiones regulares
     while not re.match(r"^\d+(\.\d+)?$", precio) or float(precio) < 1:
         print("El precio es invalido")
         precio = input("Precio por unidad: ")
-
     precio = float(precio)
 
     cantidad = input("Cantidad: ")
@@ -63,11 +69,11 @@ def cargar_datos(stock):
     while not re.match(r"^\d+$", cantidad) or int(cantidad) < 1:
         print("La cantidad debe ser un número entero mayor a 0")
         cantidad = input("Cantidad: ")
-
     cantidad = int(cantidad)
     
     #Agrega el producto al diccionario
     stock.append({
+        "colaborador": colaborador,
         "id": id,
         "nombre": nombre,
         "precio": precio,
@@ -119,12 +125,10 @@ def actualizar_producto(stock):
                     print("\n===== PRECIO =====")
 
                     nuevo_precio = input("Nuevo precio: ")
-
                     #Valida el nuevo precio
                     while not re.match(r"^\d+(\.\d+)?$", nuevo_precio) or float(nuevo_precio) < 1:
                         print("Precio inválido, ingrese nuevamente")
                         nuevo_precio = input("Nuevo precio: ")
-
                     producto["precio"] = float(nuevo_precio)
 
                     print("Precio actualizado correctamente")
@@ -132,14 +136,11 @@ def actualizar_producto(stock):
                 elif opcion == "2":
 
                     print("\n===== CANTIDAD =====")
-
                     nueva_cantidad = input("Nueva cantidad: ")
-
                     #Valida la nueva cantidad de productos
                     while not re.match(r"^\d+$", nueva_cantidad) or int(nueva_cantidad) < 1:
                         print("Cantidad inválida, ingrese nuevamente")
                         nueva_cantidad = input("Nueva cantidad: ")
-
                     producto["cantidad"] = int(nueva_cantidad)
 
                     print("Cantidad actualizada correctamente")
@@ -185,7 +186,11 @@ def ordenar_productos(stock):
 
             for producto in stock:
 
-                print(f"ID: {producto['id']} - Nombre: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
+                nombre_colab = producto["colaborador"][0]
+                dni_colab = producto["colaborador"][1]
+
+                print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+                print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
 
         elif opcion == "2":
 
@@ -195,7 +200,11 @@ def ordenar_productos(stock):
 
             for producto in stock:
 
-                print(f"ID: {producto['id']} - Nombre: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
+                nombre_colab = producto["colaborador"][0]
+                dni_colab = producto["colaborador"][1]
+
+                print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+                print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
 
         elif opcion == "0":
             print("Volviendo al menú...")
@@ -221,8 +230,13 @@ def mostrar_productos(stock):
     for producto in stock:
 
         print("-----------------------------")
+
+        nombre_colab = producto["colaborador"][0]
+        dni_colab = producto["colaborador"][1]
+
+        print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
         print("ID:", producto["id"])
-        print("Nombre:", producto["nombre"])
+        print("Nombre del producto:", producto["nombre"])
         print("Precio por unidad:", producto["precio"])
         print("Cantidad:", producto["cantidad"])
 
@@ -256,10 +270,13 @@ def buscar_producto(stock):
 
         if producto["id"] == id_buscar:
 
-            print("ID:", producto["id"])
-            print("Nombre:", producto["nombre"])
-            print("Precio por unidad:", producto["precio"])
-            print("Cantidad:", producto["cantidad"])
+            nombre_colab = producto["colaborador"][0]
+            dni_colab = producto["colaborador"][1]
+
+            print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+            print(f"Nombre del producto: {producto["nombre"]}")
+            print(f"Precio por unidad: {producto["precio"]}")
+            print(f"Cantidad: {producto["cantidad"]}")
 
             return
 
@@ -333,7 +350,11 @@ def estadisticas_especificas(stock):
 
         for p in menores:
 
-            print(f"ID: {p['id']} - Nombre: {p['nombre']} - Precio por unidad: {p['precio']} - Cantidad: {p['cantidad']} ")
+            nombre_colab = p["colaborador"][0]
+            dni_colab = p["colaborador"][1]
+
+            print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+            print(f"ID: {p['id']} - Nombre del producto: {p['nombre']} - Precio por unidad: {p['precio']} - Cantidad: {p['cantidad']} ")
 
     else:
         print("No hay productos con cantidad menor a 5")
