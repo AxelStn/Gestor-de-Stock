@@ -2,7 +2,7 @@ import random
 from functools import reduce
 import re
 
-#Funcion Para añadur un correo
+#Funcion para añadir un correo
 def validar_usuario():
     """
     Función: validar_usuario
