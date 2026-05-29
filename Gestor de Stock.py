@@ -1,7 +1,7 @@
 import random
 from functools import reduce
 import re
-
+#fjprgtjted
 def validar_usuario():
     """
     Función: validar_usuario
