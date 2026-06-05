@@ -5,7 +5,7 @@ import re
 def validar_usuario():
     """
     Función: validar_usuario
-    Propósito: Asegura que el usuario ingrese una cadena de texto con una estructura 
+    Propósito: Asegura que el usuario ingrese una cadena de texto con una estructuraa. 
     válida antes de permitir el despliegue del menú principal del programa.
     """
 
