@@ -26,7 +26,7 @@ def validar_usuario():
 
 def cargar_datos(stock):
     """
-    Función: cargar_datos
+    Función: cargar_datos aaa
     Propósito: cargar un nuevo producto en la matriz stock.
     Genera un ID aleatorio y valida los datos ingresados.
     """    
