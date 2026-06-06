@@ -117,40 +117,44 @@ def actualizar_producto(stock):
                 print("2. Actualizar cantidad")
                 print("0. Salir al menú principal")
 
-                opcion = input("\nOpcion: ")
-                
-                #Valdicaion para actualizar precio y cantidad
-                if opcion == "1":
+                try:
+                    opcion = int(input("\nOpcion: "))
+                    
+                    #Valdicaion para actualizar precio y cantidad
+                    if opcion == 1:
 
-                    print("\n===== PRECIO =====")
+                        print("\n===== PRECIO =====")
 
-                    nuevo_precio = input("Nuevo precio: ")
-                    #Valida el nuevo precio
-                    while not re.match(r"^\d+(\.\d+)?$", nuevo_precio) or float(nuevo_precio) < 1:
-                        print("Precio inválido, ingrese nuevamente")
                         nuevo_precio = input("Nuevo precio: ")
-                    producto["precio"] = float(nuevo_precio)
+                        #Valida el nuevo precio
+                        while not re.match(r"^\d+(\.\d+)?$", nuevo_precio) or float(nuevo_precio) < 1:
+                            print("Precio inválido, ingrese nuevamente")
+                            nuevo_precio = input("Nuevo precio: ")
+                        producto["precio"] = float(nuevo_precio)
 
-                    print("Precio actualizado correctamente")
+                        print("Precio actualizado correctamente")
 
-                elif opcion == "2":
+                    elif opcion == 2:
 
-                    print("\n===== CANTIDAD =====")
-                    nueva_cantidad = input("Nueva cantidad: ")
-                    #Valida la nueva cantidad de productos
-                    while not re.match(r"^\d+$", nueva_cantidad) or int(nueva_cantidad) < 1:
-                        print("Cantidad inválida, ingrese nuevamente")
+                        print("\n===== CANTIDAD =====")
                         nueva_cantidad = input("Nueva cantidad: ")
-                    producto["cantidad"] = int(nueva_cantidad)
+                        #Valida la nueva cantidad de productos
+                        while not re.match(r"^\d+$", nueva_cantidad) or int(nueva_cantidad) < 1:
+                            print("Cantidad inválida, ingrese nuevamente")
+                            nueva_cantidad = input("Nueva cantidad: ")
+                        producto["cantidad"] = int(nueva_cantidad)
 
-                    print("Cantidad actualizada correctamente")
+                        print("Cantidad actualizada correctamente")
+                    
+                    elif opcion == 0:
+                        print("Saliendo al menú...")
+                        return
+
+                    else:
+                        print("Seleccionar una opción sugerida.")
                 
-                elif opcion == "0":
-                    print("Saliendo al menú...")
-                    return
-
-                else:
-                    print("Opción no reconocida")
+                except ValueError:
+                    print("Error. Ingrese valores númericos.")
 
     print("ID no encontrado")
 
@@ -176,43 +180,46 @@ def ordenar_productos(stock):
         print("2. Ordenar por cantidad")
         print("0. Volver al menú")
 
-        opcion = input("Opción: ")
+        try:
+            opcion = input("Opción: ")
+            
+            if opcion == 1:
 
-        if opcion == "1":
+                stock.sort(key=lambda producto: producto["precio"])
 
-            stock.sort(key=lambda producto: producto["precio"])
+                print("== Lista ordenada - PRECIO de menor a mayor ==")
 
-            print("== Lista ordenada - PRECIO de menor a mayor ==")
+                for producto in stock:
 
-            for producto in stock:
+                    nombre_colab = producto["colaborador"][0]
+                    dni_colab = producto["colaborador"][1]
 
-                nombre_colab = producto["colaborador"][0]
-                dni_colab = producto["colaborador"][1]
+                    print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+                    print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
 
-                print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
-                print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
+            elif opcion == 2:
 
-        elif opcion == "2":
+                stock.sort(key=lambda producto: producto["cantidad"])
 
-            stock.sort(key=lambda producto: producto["cantidad"])
+                print("== Lista ordenada - CANTIDAD de menor a mayor ==")
 
-            print("== Lista ordenada - CANTIDAD de menor a mayor ==")
+                for producto in stock:
 
-            for producto in stock:
+                    nombre_colab = producto["colaborador"][0]
+                    dni_colab = producto["colaborador"][1]
 
-                nombre_colab = producto["colaborador"][0]
-                dni_colab = producto["colaborador"][1]
+                    print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+                    print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
 
-                print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
-                print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
+            elif opcion == 0:
+                print("Volviendo al menú...")
+                return
 
-        elif opcion == "0":
-            print("Volviendo al menú...")
-            return
+            else:
+                print("Opción no reconocida")
 
-        else:
-            print("Opción no reconocida")
-
+        except ValueError: 
+            print("Error. Ingrese valores numéricos.")
 
 def mostrar_productos(stock):
     """
@@ -376,33 +383,37 @@ def eliminar_producto(stock):
     
     while True: 
 
-        deseo = input("¿Desea eliminar un producto? 1 = Sí / 0 = No: ")
+        try:
+            deseo = int(input("¿Desea eliminar un producto? 1 = Sí / 0 = No: "))
 
-        if deseo == "1":
+            if deseo == 1:
 
-            #Validacion con expresiones regulares para eliminar un producto buscando el id
-            dato = input("ID a eliminar: ")
-
-            while not re.match(r"^\d+$", dato):
-                print("ID inválido")
+                #Validacion con expresiones regulares para eliminar un producto buscando el id
                 dato = input("ID a eliminar: ")
 
-            dato = int(dato)
-                
-            nuevo = list(filter(lambda p: p["id"] != dato, stock))
+                while not re.match(r"^\d+$", dato):
+                    print("ID inválido")
+                    dato = input("ID a eliminar: ")
 
-            if len(nuevo) == len(stock):
-                print("No encontrado")
+                dato = int(dato)
+                    
+                nuevo = list(filter(lambda p: p["id"] != dato, stock))
+
+                if len(nuevo) == len(stock):
+                    print("No encontrado")
+                else:
+                    print("Producto eliminado")
+
+                return nuevo
+
+            elif deseo == 0:
+                return stock
+            
             else:
-                print("Producto eliminado")
-
-            return nuevo
-
-        elif deseo == "0":
-            return stock
+                print("Comando no reconocido")
         
-        else:
-            print("Comando no reconocido")
+        except ValueError:
+            print("Error. Ingresar valores numéricos.")
 
 
 def info_funciones():
@@ -424,30 +435,34 @@ def info_funciones():
     print("8. estadisticas_especificas")
     print("9. eliminar_producto")
 
-    opcion = input("Elija una función: ")
+    try:
+        opcion = int(input("Elija una función: "))
 
-    if opcion == "0":
-        help(validar_usuario)
-    elif opcion == "1":
-        help(cargar_datos)
-    elif opcion == "2":
-        help(actualizar_producto)
-    elif opcion == "3":
-        help(ordenar_productos)
-    elif opcion == "4":
-        help(mostrar_productos)
-    elif opcion == "5":
-        help(buscar_producto)
-    elif opcion == "6":
-        help(obtener_precios)
-    elif opcion == "7":
-        help(estadisticas)
-    elif opcion == "8":
-        help(estadisticas_especificas)
-    elif opcion == "9":
-        help(eliminar_producto)
-    else:
-        print("Opción inválida")
+        if opcion == 0:
+            help(validar_usuario)
+        elif opcion == 1:
+            help(cargar_datos)
+        elif opcion == 2:
+            help(actualizar_producto)
+        elif opcion == 3:
+            help(ordenar_productos)
+        elif opcion == 4:
+            help(mostrar_productos)
+        elif opcion == 5:
+            help(buscar_producto)
+        elif opcion == 6:
+            help(obtener_precios)
+        elif opcion == 7:
+            help(estadisticas)
+        elif opcion == 8:
+            help(estadisticas_especificas)
+        elif opcion == 9:
+            help(eliminar_producto)
+        else:
+            print("Opción inválida")
+    
+    except ValueError:
+        print("Error. Ingresar valores numéricos.")
 
 
 def main():
