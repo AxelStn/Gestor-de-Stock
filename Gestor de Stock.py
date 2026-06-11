@@ -181,7 +181,7 @@ def ordenar_productos(stock):
         print("0. Volver al menú")
 
         try:
-            opcion = input("Opción: ")
+            opcion = int(input("Opción: "))
             
             if opcion == 1:
 
@@ -490,40 +490,43 @@ def main():
         print("9. Informacion de funciones")
         print("0. Salir")
 
-        opcion = input("Opcion: ")
+        try:
+            opcion = input("Opcion: ")
 
-        if opcion == "1":
-            cargar_datos(stock)
+            if opcion == "1":
+                cargar_datos(stock)
 
-        elif opcion == "2":
-            actualizar_producto(stock)
+            elif opcion == "2":
+                actualizar_producto(stock)
 
-        elif opcion == "3":
-            ordenar_productos(stock)
+            elif opcion == "3":
+                ordenar_productos(stock)
 
-        elif opcion == "4":
-            mostrar_productos(stock)
+            elif opcion == "4":
+                mostrar_productos(stock)
 
-        elif opcion == "5":
-            buscar_producto(stock)
+            elif opcion == "5":
+                buscar_producto(stock)
 
-        elif opcion == "6":
-            estadisticas(stock)
+            elif opcion == "6":
+                estadisticas(stock)
 
-        elif opcion == "7":
-            estadisticas_especificas(stock)
+            elif opcion == "7":
+                estadisticas_especificas(stock)
 
-        elif opcion == "8":
-            stock = eliminar_producto(stock)
+            elif opcion == "8":
+                stock = eliminar_producto(stock)
 
-        elif opcion == "9":
-            info_funciones()
-            
-        elif opcion == "0":
-            print("Programa cerrado")
-            break
+            elif opcion == "9":
+                info_funciones()
+                
+            elif opcion == "0":
+                print("Programa cerrado")
+                break
 
-        else:
-            print("Use opciones del menu")
-
+            else:
+                print("Use opciones del menu")
+                
+        except ValueError:
+            print("Error. Ingrese valores numéricos.")
 main()
