@@ -181,7 +181,7 @@ def ordenar_productos(stock):
         print("0. Volver al menú")
 
         try:
-            opcion = int(input("Opción: "))
+            opcion = int(input("\nOpción: "))
             
             if opcion == 1:
 
@@ -327,7 +327,7 @@ def estadisticas(stock):
     promedio = suma / len(precios)
 
     # Muestra los resultados
-    print("===== ESTADISTICAS =====")
+    print("\n===== ESTADISTICAS =====")
     print("Precio minimo:", minimo)
     print("Precio maximo:", maximo)
     print("Promedio:", int(promedio))
@@ -423,7 +423,7 @@ def info_funciones():
     utilizando help().
     """
 
-    print("===== INFORMACION DE FUNCIONES =====")
+    print("\n===== INFORMACION DE FUNCIONES =====")
     print("0. validar_usuario")
     print("1. cargar_datos")
     print("2. actualizar_producto")
@@ -436,7 +436,7 @@ def info_funciones():
     print("9. eliminar_producto")
 
     try:
-        opcion = int(input("Elija una función: "))
+        opcion = int(input("\nElija una función: "))
 
         if opcion == 0:
             help(validar_usuario)
@@ -491,7 +491,7 @@ def main():
         print("0. Salir")
 
         try:
-            opcion = input("Opcion: ")
+            opcion = input("\nOpcion: ")
 
             if opcion == "1":
                 cargar_datos(stock)
