@@ -79,7 +79,14 @@ def cargar_datos(stock):
         "precio": precio,
         "cantidad": cantidad
     })
+    #Archivo CSV
+    archivo = open("stock.csv", "a",newline="",encoding="utf-8")
+    escritor = csv.writer(archivo)
+    
+    escritor.writerow([colaborador[0], colaborador[1], id, nombre, precio, cantidad])
 
+    archivo.close()
+    
     print(f"\nProducto cargado correctamente - ID: {id}")
 
 
@@ -145,6 +152,13 @@ def actualizar_producto(stock):
                         producto["cantidad"] = int(nueva_cantidad)
 
                         print("Cantidad actualizada correctamente")
+
+                        #Actualizar el archivo CSV después de modificar la cantidad
+                        archivo= open("stock.csv", "w", newline="", encoding="utf-8")
+                        escritor = csv.writer(archivo)
+                        for producto in stock:
+                            escritor.writerow([producto["colaborador"][0], producto["colaborador"][1], producto["id"], producto["nombre"], producto["precio"], producto["cantidad"]])
+                        archivo.close()
                     
                     elif opcion == 0:
                         print("Saliendo al menú...")
@@ -403,6 +417,15 @@ def eliminar_producto(stock):
                     print("No encontrado")
                 else:
                     print("Producto eliminado")
+
+                    #Actualizar el archivo CSV después de eliminar el producto
+                    archivo= open("stock.csv", "w", newline="", encoding="utf-8")
+                    escritor = csv.writer(archivo)
+
+                    for producto in nuevo:
+                        escritor.writerow([producto["colaborador"][0], producto["colaborador"][1], producto["id"], producto["nombre"], producto["precio"], producto["cantidad"]])
+                    
+                    archivo.close()
 
                 return nuevo
 
