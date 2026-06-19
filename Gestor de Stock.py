@@ -1,4 +1,3 @@
-import csv
 import random
 from functools import reduce
 import re
