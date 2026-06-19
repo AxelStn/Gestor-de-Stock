@@ -46,6 +46,7 @@ def cargar_datos(stock):
         dni = input("Re-ingresar DNI (8 digitos): ")
         while not re.match(r"^\d{8}$", dni):
             print("Error. DNI fuera de rango.")
+            dni = input("Re-ingresar DNI (8 digitos): ")
         dni = int(dni)
 
     colaborador = tuple([name, dni])
@@ -494,7 +495,10 @@ def main():
         archivo = open("personas.json", "r")
         stock = json.load(archivo)
         archivo.close()
+        for producto in stock: 
+            producto["colaborador"] = tuple(producto["colaborador"])
         print("Stock cargado correctamente.")
+        
 
     #Si es la 1ra vez que se ingresa, se crea la lista desde 0
     except FileNotFoundError: 
