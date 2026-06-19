@@ -1,0 +1,22 @@
+[
+    {
+        "colaborador": [
+            "lan",
+            90909090
+        ],
+        "id": 381,
+        "nombre": "ka",
+        "precio": 20.0,
+        "cantidad": 20
+    },
+    {
+        "colaborador": [
+            "axel",
+            80808080
+        ],
+        "id": 684,
+        "nombre": "si",
+        "precio": 30.0,
+        "cantidad": 30
+    }
+]

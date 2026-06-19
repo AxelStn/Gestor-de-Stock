@@ -1,6 +1,7 @@
 import random
 from functools import reduce
 import re
+import json
 
 def validar_usuario():
     """
@@ -40,11 +41,16 @@ def cargar_datos(stock):
         print("Error. DNI fuera de rango.")
         dni = input("DNI (8 digitos): ")
     dni = int(dni)
+    while dni in [producto["colaborador"][1] for producto in stock]:
+        print("DNI ya registrado en el sistema")
+        dni = input("Re-ingresar DNI (8 digitos): ")
+        while not re.match(r"^\d{8}$", dni):
+            print("Error. DNI fuera de rango.")
+        dni = int(dni)
 
     colaborador = tuple([name, dni])
 
     id = random.randint(100, 999)
-
     #Genera otro ID si el anterior ya existe en la matriz
     while id in [producto["id"] for producto in stock]:
         print("\nID repetido, generando otro...")
@@ -79,12 +85,10 @@ def cargar_datos(stock):
         "precio": precio,
         "cantidad": cantidad
     })
-    #Archivo CSV
-    archivo = open("stock.csv", "a",newline="",encoding="utf-8")
-    escritor = csv.writer(archivo)
-    
-    escritor.writerow([colaborador[0], colaborador[1], id, nombre, precio, cantidad])
 
+    #Se abre el archivo json
+    archivo = open("personas.json", "w")
+    json.dump(stock, archivo, indent=4)
     archivo.close()
     
     print(f"\nProducto cargado correctamente - ID: {id}")
@@ -139,6 +143,10 @@ def actualizar_producto(stock):
                             nuevo_precio = input("Nuevo precio: ")
                         producto["precio"] = float(nuevo_precio)
 
+                        archivo = open("personas.json", "w")
+                        json.dump(stock, archivo, indent=4)
+                        archivo.close()
+
                         print("Precio actualizado correctamente")
 
                     elif opcion == 2:
@@ -151,14 +159,11 @@ def actualizar_producto(stock):
                             nueva_cantidad = input("Nueva cantidad: ")
                         producto["cantidad"] = int(nueva_cantidad)
 
-                        print("Cantidad actualizada correctamente")
-
-                        #Actualizar el archivo CSV después de modificar la cantidad
-                        archivo= open("stock.csv", "w", newline="", encoding="utf-8")
-                        escritor = csv.writer(archivo)
-                        for producto in stock:
-                            escritor.writerow([producto["colaborador"][0], producto["colaborador"][1], producto["id"], producto["nombre"], producto["precio"], producto["cantidad"]])
+                        archivo = open("personas.json", "w")
+                        json.dump(stock, archivo, indent=4)
                         archivo.close()
+
+                        print("Cantidad actualizada correctamente")
                     
                     elif opcion == 0:
                         print("Saliendo al menú...")
@@ -169,7 +174,7 @@ def actualizar_producto(stock):
                 
                 except ValueError:
                     print("Error. Ingrese valores númericos.")
-
+            
     print("ID no encontrado")
 
 
@@ -204,12 +209,13 @@ def ordenar_productos(stock):
                 print("== Lista ordenada - PRECIO de menor a mayor ==")
 
                 for producto in stock:
-
+                    print("-----------------------------")
                     nombre_colab = producto["colaborador"][0]
                     dni_colab = producto["colaborador"][1]
 
                     print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
                     print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
+                print("-----------------------------")
 
             elif opcion == 2:
 
@@ -219,11 +225,13 @@ def ordenar_productos(stock):
 
                 for producto in stock:
 
+                    print("-----------------------------")
                     nombre_colab = producto["colaborador"][0]
                     dni_colab = producto["colaborador"][1]
 
                     print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
                     print(f"ID: {producto['id']} - Nombre del producto: {producto['nombre']} - Precio por unidad: {producto['precio']} - Cantidad: {producto['cantidad']} ")
+                print("-----------------------------")
 
             elif opcion == 0:
                 print("Volviendo al menú...")
@@ -267,26 +275,23 @@ def mostrar_productos(stock):
 def buscar_producto(stock):
     """
     Función: buscar_producto
-    Propósito: buscar un producto por su ID y mostrarlo si existe.
+    Propósito: buscar un producto por su ID usando la lista en memoria y mostrarlo si existe.
     """
-
     print("\n===== BUSCAR PRODUCTOS =====")
     
-    #Verifica que existan productos cargados
+    # Verificamos con la lista que ya tenemos en memoria
     if not stock:
         print("No hay productos")
         return
     
     id_buscar = input("ID a buscar: ")
-
-    #Validacion while para actualizar un producto 
+    #Validación 
     while not re.match(r"^\d+$", id_buscar):
         print("ID inválido")
         id_buscar = input("ID: ")
-
     id_buscar = int(id_buscar)
 
-    #Recorre la matriz para buscar el producto
+    #Recorremos la matriz para mostrar el producto
     for producto in stock:
 
         if producto["id"] == id_buscar:
@@ -295,10 +300,9 @@ def buscar_producto(stock):
             dni_colab = producto["colaborador"][1]
 
             print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
-            print(f"Nombre del producto: {producto["nombre"]}")
-            print(f"Precio por unidad: {producto["precio"]}")
-            print(f"Cantidad: {producto["cantidad"]}")
-
+            print(f"Nombre del producto: {producto['nombre']}")
+            print(f"Precio por unidad: {producto['precio']}")
+            print(f"Cantidad: {producto['cantidad']}")
             return
 
     print("No encontrado")
@@ -418,13 +422,8 @@ def eliminar_producto(stock):
                 else:
                     print("Producto eliminado")
 
-                    #Actualizar el archivo CSV después de eliminar el producto
-                    archivo= open("stock.csv", "w", newline="", encoding="utf-8")
-                    escritor = csv.writer(archivo)
-
-                    for producto in nuevo:
-                        escritor.writerow([producto["colaborador"][0], producto["colaborador"][1], producto["id"], producto["nombre"], producto["precio"], producto["cantidad"]])
-                    
+                    archivo = open("personas.json", "w")
+                    json.dump(nuevo, archivo, indent=4)
                     archivo.close()
 
                 return nuevo
@@ -490,8 +489,16 @@ def info_funciones():
 
 def main():
 
-    #Se crea la lista de stocks
-    stock = []
+    #Se carga el archivo json
+    try: 
+        archivo = open("personas.json", "r")
+        stock = json.load(archivo)
+        archivo.close()
+        print("Stock cargado correctamente.")
+
+    #Si es la 1ra vez que se ingresa, se crea la lista desde 0
+    except FileNotFoundError: 
+        stock = []
 
     #Guarda el email ingresado
     usuario_mail = validar_usuario()
@@ -514,36 +521,36 @@ def main():
         print("0. Salir")
 
         try:
-            opcion = input("\nOpcion: ")
+            opcion = int(input("\nOpcion: "))
 
-            if opcion == "1":
+            if opcion == 1:
                 cargar_datos(stock)
 
-            elif opcion == "2":
+            elif opcion == 2:
                 actualizar_producto(stock)
 
-            elif opcion == "3":
+            elif opcion == 3:
                 ordenar_productos(stock)
 
-            elif opcion == "4":
+            elif opcion == 4:
                 mostrar_productos(stock)
 
-            elif opcion == "5":
+            elif opcion == 5:
                 buscar_producto(stock)
 
-            elif opcion == "6":
+            elif opcion == 6:
                 estadisticas(stock)
 
-            elif opcion == "7":
+            elif opcion == 7:
                 estadisticas_especificas(stock)
 
-            elif opcion == "8":
+            elif opcion == 8:
                 stock = eliminar_producto(stock)
 
-            elif opcion == "9":
+            elif opcion == 9:
                 info_funciones()
                 
-            elif opcion == "0":
+            elif opcion == 0:
                 print("Programa cerrado")
                 break
 
