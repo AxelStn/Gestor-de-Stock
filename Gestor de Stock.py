@@ -34,21 +34,29 @@ def cargar_datos(stock):
 
     print("\n===== CARGAR DATOS =====")
 
-    name = input("Nombre del colaborador: ")
-
     dni = input("DNI (8 digitos): ")
     while not re.match(r"^\d{8}$", dni):
         print("Error. DNI fuera de rango.")
         dni = input("DNI (8 digitos): ")
     dni = int(dni)
-    while dni in [producto["colaborador"][1] for producto in stock]:
-        print("DNI ya registrado en el sistema")
-        dni = input("Re-ingresar DNI (8 digitos): ")
-        while not re.match(r"^\d{8}$", dni):
-            print("Error. DNI fuera de rango.")
-            dni = input("Re-ingresar DNI (8 digitos): ")
-        dni = int(dni)
+    
+    #Buscar si existe DNI
+    existe_nombre=None
 
+    for producto in stock:
+        if producto["colaborador"][1] == dni:
+            existe_nombre=producto["colaborador"][0]
+            break
+    
+    if existe_nombre:
+        print(f"El DNI ingresado corresponde a {existe_nombre}")
+        name=existe_nombre
+    else:
+        name = input("Nombre del colaborador: ")
+        while not re.match(r"^[a-zA-Z\s]+$", name):
+            print("Error. Ingrese un nombre válido.")
+            name = input("Nombre del colaborador: ")
+            
     colaborador = tuple([name, dni])
 
     id = random.randint(100, 999)
@@ -60,7 +68,7 @@ def cargar_datos(stock):
     nombre = input("Ingresar nombre del producto: ")
     #Verifica que el nombre no se repita
     while nombre in [producto["nombre"] for producto in stock]:
-        print("Nombre repetido")
+        print("Producto repetido")
         nombre = input("Reingresar nombre del producto: ")
 
     precio = input("Precio por unidad: ")
@@ -385,7 +393,30 @@ def estadisticas_especificas(stock):
     else:
         print("No hay productos con cantidad menor a 5")
 
+def dnis_unicos(stock):
+    """
+    Función: DNIs_unicos
+    Propósito: mostrar los DNIs únicos registrados en el sistema.
+    Utiliza un set para almacenar los DNIs sin repetición.
+    """
 
+    print("\n===== DNIs UNICOS =====")
+
+    # Verifica que existan productos cargados
+    if not stock:
+        print("No hay productos")
+        return
+
+    # Se crea un set para almacenar los DNIs únicos
+    dnis = set()
+
+    for producto in stock:
+        dni = producto["colaborador"]
+        dnis.add(dni)
+
+    for dni in dnis:
+        print("Colaborador:", dni[0], "- DNI:", dni[1])
+        
 def eliminar_producto(stock):
     """
     Función: eliminar_producto
@@ -456,7 +487,8 @@ def info_funciones():
     print("6. obtener_precios")
     print("7. estadisticas")
     print("8. estadisticas_especificas")
-    print("9. eliminar_producto")
+    print("9. dnis_unicos")
+    print("10. eliminar_producto")
 
     try:
         opcion = int(input("\nElija una función: "))
@@ -480,6 +512,8 @@ def info_funciones():
         elif opcion == 8:
             help(estadisticas_especificas)
         elif opcion == 9:
+            help(dnis_unicos)
+        elif opcion == 10:
             help(eliminar_producto)
         else:
             print("Opción inválida")
@@ -521,11 +555,12 @@ def main():
         print("6. Estadisticas")
         print("7. Ver productos con cantidad < 5")
         print("8. Eliminar producto")
-        print("9. Informacion de funciones")
+        print("9. DNIs unicos")
+        print("10. Informacion de funciones")
         print("0. Salir")
 
         try:
-            opcion = int(input("\nOpcion: "))
+            opcion = int(input("\nOpción: "))
 
             if opcion == 1:
                 cargar_datos(stock)
@@ -551,7 +586,10 @@ def main():
             elif opcion == 8:
                 stock = eliminar_producto(stock)
 
-            elif opcion == 9:
+            elif opcion==9:
+                dnis_unicos(stock)
+                
+            elif opcion == 10:
                 info_funciones()
                 
             elif opcion == 0:
