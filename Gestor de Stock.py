@@ -34,29 +34,34 @@ def cargar_datos(stock):
 
     print("\n===== CARGAR DATOS =====")
 
+    #Se le pedirá al usuario ingresar su DNI.
     dni = input("DNI (8 digitos): ")
+    #Validación de cantidad y tipo de carácteres obligatorios.
     while not re.match(r"^\d{8}$", dni):
         print("Error. DNI fuera de rango.")
         dni = input("DNI (8 digitos): ")
     dni = int(dni)
     
-    #Buscar si existe DNI
-    existe_nombre=None
-
-    for producto in stock:
-        if producto["colaborador"][1] == dni:
-            existe_nombre=producto["colaborador"][0]
+    #Se buscará si el DNI ingresado se encuentra registrado en el sistema. 
+    existe_nombre = None
+    for colaborador in stock:
+        #Si el DNI se encuentra en el sistema, se registrará automáticamente con el mismo nombre.
+        if colaborador["colaborador"][1] == dni:
+            existe_nombre = colaborador["colaborador"][0]
             break
     
     if existe_nombre:
-        print(f"El DNI ingresado corresponde a {existe_nombre}")
-        name=existe_nombre
+        print(f"¡Hola nuevamente {existe_nombre}!")
+        #Se registra con el mismo nombre. 
+        name = existe_nombre
     else:
+        #Si el DNI no se encuentra registrado, se le pedirá el nombre por primera vez.
         name = input("Nombre del colaborador: ")
         while not re.match(r"^[a-zA-Z\s]+$", name):
             print("Error. Ingrese un nombre válido.")
             name = input("Nombre del colaborador: ")
-            
+
+    #Se crea la tupla en base al Nombre y DNI del colaborador      
     colaborador = tuple([name, dni])
 
     id = random.randint(100, 999)
@@ -393,6 +398,7 @@ def estadisticas_especificas(stock):
     else:
         print("No hay productos con cantidad menor a 5")
 
+
 def dnis_unicos(stock):
     """
     Función: DNIs_unicos
@@ -417,6 +423,7 @@ def dnis_unicos(stock):
     for dni in dnis:
         print("Colaborador:", dni[0], "- DNI:", dni[1])
         
+
 def eliminar_producto(stock):
     """
     Función: eliminar_producto
@@ -529,11 +536,11 @@ def main():
         archivo = open("personas.json", "r")
         stock = json.load(archivo)
         archivo.close()
+        #Se genera como tupla nuevamente.
         for producto in stock: 
             producto["colaborador"] = tuple(producto["colaborador"])
         print("Stock cargado correctamente.")
         
-
     #Si es la 1ra vez que se ingresa, se crea la lista desde 0
     except FileNotFoundError: 
         stock = []
