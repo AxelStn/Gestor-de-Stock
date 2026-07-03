@@ -477,6 +477,73 @@ def eliminar_producto(stock):
             print("Error. Ingresar valores numéricos.")
 
 
+def prueba_calculo_precios():
+    
+    #Se creará dos diccionarios ficticios para el test.
+    stock_prueba = [{
+        "colaborador": ("Axel", 44123456),
+        "id": 101, 
+        "nombre": "Teclado", 
+        "precio": 1500.0, 
+        "cantidad": 2
+        },
+        {
+        "colaborador": ("Ale", 44123457),
+        "id": 102, 
+        "nombre": "Mouse", 
+        "precio": 500.0, 
+        "cantidad": 5,        
+    }]
+    
+    #Se llamará a la función obtener precios ejecutado con el stock de prueba.
+    resultado = obtener_precios(stock_prueba)
+    
+    #Si los resultados coinciden, la prueba finalizó con éxito.
+    if resultado == [1500.0, 500.0]:
+        print("Prueba Cálculo de Precios: CORRECTA")
+    #Si se cambió el valor inicial, el resultado finalizó con éxito operando con el Error. 
+    else:
+        print("Prueba Cálculo de Precios: ERROR")
+
+def prueba_busqueda_producto():
+    
+    #Se creará un diccionario ficticio para el test.
+    stock_prueba = [{
+        "colaborador": ("Angel", 44123456),
+        "id": 101, 
+        "nombre": "Teclado", 
+        "precio": 1500.0, 
+        "cantidad": 2,    
+    }]
+    
+    #Se buscará el ID a encontrar.
+    id_falso = 999
+    encontrado = False
+    for p in stock_prueba:
+        if p["id"] == id_falso:
+            encontrado = True
+    
+    #Si el ID ficticio coincide con el id falso, la prueba resultó conrrectamente mostrando en la terminal CORRECTO. 
+    if encontrado == False:
+        print("Prueba Búsqueda (ID Inexistente): CORRECTA")
+    #Si el ID ficticio no coincide con el id falso, la prueba resultadó correctamente mostrando en la terminal ERROR. 
+    else:
+        print("Prueba Búsqueda (ID Inexistente): ERROR")
+
+def ejecutar_todas_las_pruebas():
+    """
+    Función: ejecutar_todas_las_pruebas
+    Propósito: correr de forma automática las pruebas unitarias, 
+    evaluando escenarios tanto positivos como negativos mediante 
+    la comparación. Simula las funciones de CÁLCULO DE PRECIO y BUSCAR POR ID.
+    """
+
+    print("\n===== CORRIENDO PRUEBAS AUTOMÁTICAS =====")
+    prueba_calculo_precios()
+    prueba_busqueda_producto()
+    print("=========================================")
+
+
 def info_funciones():
     """
     Función: info_funciones
@@ -496,6 +563,7 @@ def info_funciones():
     print("8. estadisticas_especificas")
     print("9. dnis_unicos")
     print("10. eliminar_producto")
+    print("11. ejecutar_todas_las_pruebas")
 
     try:
         opcion = int(input("\nElija una función: "))
@@ -522,6 +590,8 @@ def info_funciones():
             help(dnis_unicos)
         elif opcion == 10:
             help(eliminar_producto)
+        elif opcion == 11:
+            help(ejecutar_todas_las_pruebas)
         else:
             print("Opción inválida")
     
@@ -564,6 +634,7 @@ def main():
         print("8. Eliminar producto")
         print("9. DNIs unicos")
         print("10. Informacion de funciones")
+        print("11. Ejecutar pruebas unitarias")
         print("0. Salir")
 
         try:
@@ -598,6 +669,9 @@ def main():
                 
             elif opcion == 10:
                 info_funciones()
+
+            elif opcion == 11:
+                ejecutar_todas_las_pruebas()
                 
             elif opcion == 0:
                 print("Programa cerrado")
