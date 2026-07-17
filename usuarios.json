@@ -10,5 +10,11 @@
         "contrase\u00f1a": "1234",
         "dni": 23456789,
         "nombre": "jose"
+    },
+    {
+        "mail": "axel@gmail.com",
+        "contrase\u00f1a": "20202",
+        "dni": 45420924,
+        "nombre": "axel steven"
     }
 ]
