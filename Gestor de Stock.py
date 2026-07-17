@@ -356,12 +356,10 @@ def buscar_producto(stock):
     """
     Función: buscar_producto
     Propósito: buscar un producto por su ID usando la lista en memoria y mostrarlo si existe.
-    Internamente delega la búsqueda en buscar_producto_recursivo(), una versión
-    recursiva inspirada en el ejemplo de las cajas apiladas del PPT de Recursividad.
     """
     print("\n===== BUSCAR PRODUCTOS =====")
     
-    # Verificamos con la lista que ya tenemos en memoria
+    #Verificamos con la lista que ya tenemos en memoria
     if not stock:
         print("No hay productos")
         return
@@ -373,7 +371,7 @@ def buscar_producto(stock):
         id_buscar = input("ID: ")
     id_buscar = int(id_buscar)
 
-    #Búsqueda recursiva (ver explicación en buscar_producto_recursivo)
+    #Búsqueda recursiva
     producto = buscar_producto_recursivo(stock, id_buscar)
 
     if producto is not None:
@@ -392,22 +390,6 @@ def buscar_producto_recursivo(stock, id_buscar, indice=0):
     """
     Función: buscar_producto_recursivo
     Propósito: busca un producto por ID de forma RECURSIVA.
-
-    Basada en el ejemplo del PPT "Clase Recursividad" (la familia que busca
-    una caja en la pila del depósito): se revisa el producto que está en la
-    posición actual, igual que se revisa la caja de arriba de la pila. Si no
-    es el que se busca, se lo "deja a un costado" y se repite exactamente el
-    mismo procedimiento con el resto de la lista (indice + 1), acercándose
-    cada vez más al caso base.
-
-    Caso base 1 (no se encontró, se llegó al "fondo del depósito"):
-        indice >= len(stock)  -> devuelve None
-    Caso base 2 (se encontró la "caja buscada"):
-        stock[indice]["id"] == id_buscar -> devuelve ese producto
-
-    Paso recursivo: si no es ninguno de los casos base, se llama a la propia
-    función avanzando una posición (indice + 1), reduciendo el problema en
-    cada llamada, tal como indica el PPT.
     """
     if indice >= len(stock):
         return None
@@ -423,19 +405,6 @@ def contar_stock_recursivo(stock, indice=0):
     Función: contar_stock_recursivo
     Propósito: cuenta, de forma RECURSIVA, la cantidad total de unidades
     (sumando el campo "cantidad" de todos los productos) que hay en el stock.
-
-    Basada en el ejemplo del PPT "Contar personas en una fila": cada persona
-    le pregunta a la de adelante cuántas hay antes que ella y le suma 1 a la
-    respuesta. Acá cada llamada le pregunta al "resto de la lista" cuánto
-    stock queda y le suma la cantidad del producto actual.
-
-    Caso base: cuando el índice llega al final de la lista, no queda nada
-    más por sumar y la función devuelve 0 (equivale a "no hay nadie más
-    delante").
-
-    Paso recursivo: cantidad del producto actual + lo que devuelva la
-    llamada recursiva sobre el resto de la lista (indice + 1). El problema
-    se reduce en 1 elemento en cada llamada, acercándose al caso base.
     """
     if indice >= len(stock):
         return 0
