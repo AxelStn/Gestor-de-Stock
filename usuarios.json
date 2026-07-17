@@ -1,0 +1,14 @@
+[
+    {
+        "mail": "angiello@gmail.com",
+        "contrase\u00f1a": "123",
+        "dni": 12345678,
+        "nombre": "angiello cancino"
+    },
+    {
+        "mail": "jose@gmail.com",
+        "contrase\u00f1a": "1234",
+        "dni": 23456789,
+        "nombre": "jose"
+    }
+]

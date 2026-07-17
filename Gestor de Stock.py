@@ -3,6 +3,69 @@ from functools import reduce
 import re
 import json
 
+try:
+    archivo=open("usuarios.json","r")
+    usuarios_registrados=json.load(archivo)
+    archivo.close()
+except FileNotFoundError:
+    usuarios_registrados=[]
+
+def registrar_usuario():
+    """
+    Función: registrar_usuario
+    Propósito: Permite al usuario registrarse en el sistema ingresando un correo
+    electrónico válido, una contraseña, su DNI y su nombre.
+    """
+    print("\n===== REGISTRO DE USUARIO =====")
+
+    #Se le pide un correo electrónico al usuario
+    mail = input("Ingrese su correo electrónico: ")
+    patron = r"^\w+@\w+\.[a-z]{2,}$"
+
+    #Valida que los datos de ingreso, concuerden con los caracteres de una cuenta oficial. 
+    while not re.match(patron, mail):
+        print("Correo inválido. Intente nuevamente.")
+        mail = input("Ingrese su correo electrónico: ")
+
+    #Verifica que el mail no esté ya registrado
+    for usuario in usuarios_registrados:
+        if usuario["mail"] == mail:
+            print("Ese correo ya está registrado.")
+            return
+
+    contraseña = input("Ingrese su contraseña: ")
+
+    #Se pide el DNI del usuario y se valida el formato (8 dígitos)
+    dni = input("Ingrese su DNI (8 digitos): ")
+    while not re.match(r"^\d{8}$", dni):
+        print("Error. DNI fuera de rango.")
+        dni = input("Ingrese su DNI (8 digitos): ")
+    dni = int(dni)
+
+    #Un mismo DNI no puede estar asociado a dos usuarios distintos.
+    for usuario in usuarios_registrados:
+        if usuario["dni"] == dni:
+            print("Ese DNI ya se encuentra registrado con otra cuenta.")
+            return
+
+    #Se pide el nombre del colaborador asociado a esa cuenta/DNI
+    nombre = input("Ingrese su nombre y apellido: ")
+    while not re.match(r"^[a-zA-Z\s]+$", nombre):
+        print("Error. Ingrese un nombre válido.")
+        nombre = input("Ingrese su nombre y apellido: ")
+
+    usuarios_registrados.append({
+        "mail": mail,
+        "contraseña": contraseña,
+        "dni": dni,
+        "nombre": nombre
+    })
+    archivo=open("usuarios.json","w")
+    json.dump(usuarios_registrados,archivo,indent=4)
+    archivo.close()
+
+    print("\nRegistro exitoso. Ahora puede iniciar sesión.")
+
 def validar_usuario():
     """
     Función: validar_usuario
@@ -10,22 +73,41 @@ def validar_usuario():
     válida antes de permitir el despliegue del menú principal del programa.
     """
 
-    print("\n===== INICIO DE SESION =====")
+    print("\n===== INICIAR DE SESIÓN =====")
 
+    while True:
     #Se le pide un correo electrónico al usuario
-    mail = input("Ingrese su correo electrónico: ")
-    patron = r"^\w+@\w+\.[a-z]{2,}$" 
-
-    #Valida que los datos de ingreso, concuerden con los caracteres de una cuenta oficial. 
-    while not re.match(patron, mail):
-        print("Correo inválido. Intente nuevamente.")
         mail = input("Ingrese su correo electrónico: ")
+        contraseña = input("Ingrese su contraseña: ")
+    
+        encontrado = False
 
-    print("\nCorreo validado correctamente")
-    return mail
+        for usuario in usuarios_registrados:
+            if usuario["mail"] == mail and usuario["contraseña"]==contraseña:
+                encontrado = True
+                break
+        if encontrado:
+            print("Inicio de sesión exitoso.")
+            return mail
+        else:
+            print("Usuario no registrado. Por favor, regístrese primero.")
+            return None
 
 
-def cargar_datos(stock):
+def buscar_usuario_por_mail(mail):
+    """
+    Función: buscar_usuario_por_mail
+    Propósito: devuelve el diccionario completo (mail, contraseña, dni, nombre)
+    del usuario registrado que coincide con el mail recibido. Se usa para
+    recuperar el DNI y el nombre del usuario que inició sesión.
+    """
+    for usuario in usuarios_registrados:
+        if usuario["mail"] == mail:
+            return usuario
+    return None
+
+
+def cargar_datos(stock, usuario_mail):
     """
     Función: cargar_datos
     Propósito: cargar un nuevo producto en la matriz stock.
@@ -34,32 +116,13 @@ def cargar_datos(stock):
 
     print("\n===== CARGAR DATOS =====")
 
-    #Se le pedirá al usuario ingresar su DNI.
-    dni = input("DNI (8 digitos): ")
-    #Validación de cantidad y tipo de carácteres obligatorios.
-    while not re.match(r"^\d{8}$", dni):
-        print("Error. DNI fuera de rango.")
-        dni = input("DNI (8 digitos): ")
-    dni = int(dni)
-    
-    #Se buscará si el DNI ingresado se encuentra registrado en el sistema. 
-    existe_nombre = None
-    for colaborador in stock:
-        #Si el DNI se encuentra en el sistema, se registrará automáticamente con el mismo nombre.
-        if colaborador["colaborador"][1] == dni:
-            existe_nombre = colaborador["colaborador"][0]
-            break
-    
-    if existe_nombre:
-        print(f"¡Hola nuevamente {existe_nombre}!")
-        #Se registra con el mismo nombre. 
-        name = existe_nombre
-    else:
-        #Si el DNI no se encuentra registrado, se le pedirá el nombre por primera vez.
-        name = input("Nombre del colaborador: ")
-        while not re.match(r"^[a-zA-Z\s]+$", name):
-            print("Error. Ingrese un nombre válido.")
-            name = input("Nombre del colaborador: ")
+    #Recuperamos los datos del usuario que inició sesión
+    usuario_actual = buscar_usuario_por_mail(usuario_mail)
+
+    #El DNI con el usuario ingresado, se registrará de la siguiente manera.
+    dni = usuario_actual["dni"]
+    name = usuario_actual["nombre"]
+    print(f"¡Hola nuevamente {name}!")
 
     #Se crea la tupla en base al Nombre y DNI del colaborador      
     colaborador = tuple([name, dni])
@@ -91,13 +154,15 @@ def cargar_datos(stock):
         cantidad = input("Cantidad: ")
     cantidad = int(cantidad)
     
-    #Agrega el producto al diccionario
+    #Agrega el producto al diccionario. El stock es ÚNICO para toda la
+    #tienda: todos los usuarios cargan y ven la misma lista de productos.
     stock.append({
         "colaborador": colaborador,
         "id": id,
         "nombre": nombre,
         "precio": precio,
-        "cantidad": cantidad
+        "cantidad": cantidad,
+        "usuario": usuario_mail
     })
 
     #Se abre el archivo json
@@ -201,7 +266,7 @@ def ordenar_productos(stock):
 
     print("\n ==== ORDENAR STOCK ====")
 
-    # Verifica que existan productos cargados
+    #Verifica que existan productos cargados
     if not stock:
         print("No hay productos ingresados")
         return
@@ -257,6 +322,7 @@ def ordenar_productos(stock):
         except ValueError: 
             print("Error. Ingrese valores numéricos.")
 
+
 def mostrar_productos(stock):
     """
     Función: mostrar_productos
@@ -290,6 +356,8 @@ def buscar_producto(stock):
     """
     Función: buscar_producto
     Propósito: buscar un producto por su ID usando la lista en memoria y mostrarlo si existe.
+    Internamente delega la búsqueda en buscar_producto_recursivo(), una versión
+    recursiva inspirada en el ejemplo de las cajas apiladas del PPT de Recursividad.
     """
     print("\n===== BUSCAR PRODUCTOS =====")
     
@@ -305,21 +373,74 @@ def buscar_producto(stock):
         id_buscar = input("ID: ")
     id_buscar = int(id_buscar)
 
-    #Recorremos la matriz para mostrar el producto
-    for producto in stock:
+    #Búsqueda recursiva (ver explicación en buscar_producto_recursivo)
+    producto = buscar_producto_recursivo(stock, id_buscar)
 
-        if producto["id"] == id_buscar:
+    if producto is not None:
+        nombre_colab = producto["colaborador"][0]
+        dni_colab = producto["colaborador"][1]
 
-            nombre_colab = producto["colaborador"][0]
-            dni_colab = producto["colaborador"][1]
+        print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
+        print(f"Nombre del producto: {producto['nombre']}")
+        print(f"Precio por unidad: {producto['precio']}")
+        print(f"Cantidad: {producto['cantidad']}")
+    else:
+        print("No encontrado")
 
-            print(f"Colaborador: {nombre_colab} - DNI: {dni_colab}")
-            print(f"Nombre del producto: {producto['nombre']}")
-            print(f"Precio por unidad: {producto['precio']}")
-            print(f"Cantidad: {producto['cantidad']}")
-            return
 
-    print("No encontrado")
+def buscar_producto_recursivo(stock, id_buscar, indice=0):
+    """
+    Función: buscar_producto_recursivo
+    Propósito: busca un producto por ID de forma RECURSIVA.
+
+    Basada en el ejemplo del PPT "Clase Recursividad" (la familia que busca
+    una caja en la pila del depósito): se revisa el producto que está en la
+    posición actual, igual que se revisa la caja de arriba de la pila. Si no
+    es el que se busca, se lo "deja a un costado" y se repite exactamente el
+    mismo procedimiento con el resto de la lista (indice + 1), acercándose
+    cada vez más al caso base.
+
+    Caso base 1 (no se encontró, se llegó al "fondo del depósito"):
+        indice >= len(stock)  -> devuelve None
+    Caso base 2 (se encontró la "caja buscada"):
+        stock[indice]["id"] == id_buscar -> devuelve ese producto
+
+    Paso recursivo: si no es ninguno de los casos base, se llama a la propia
+    función avanzando una posición (indice + 1), reduciendo el problema en
+    cada llamada, tal como indica el PPT.
+    """
+    if indice >= len(stock):
+        return None
+
+    if stock[indice]["id"] == id_buscar:
+        return stock[indice]
+
+    return buscar_producto_recursivo(stock, id_buscar, indice + 1)
+
+
+def contar_stock_recursivo(stock, indice=0):
+    """
+    Función: contar_stock_recursivo
+    Propósito: cuenta, de forma RECURSIVA, la cantidad total de unidades
+    (sumando el campo "cantidad" de todos los productos) que hay en el stock.
+
+    Basada en el ejemplo del PPT "Contar personas en una fila": cada persona
+    le pregunta a la de adelante cuántas hay antes que ella y le suma 1 a la
+    respuesta. Acá cada llamada le pregunta al "resto de la lista" cuánto
+    stock queda y le suma la cantidad del producto actual.
+
+    Caso base: cuando el índice llega al final de la lista, no queda nada
+    más por sumar y la función devuelve 0 (equivale a "no hay nadie más
+    delante").
+
+    Paso recursivo: cantidad del producto actual + lo que devuelva la
+    llamada recursiva sobre el resto de la lista (indice + 1). El problema
+    se reduce en 1 elemento en cada llamada, acercándose al caso base.
+    """
+    if indice >= len(stock):
+        return 0
+
+    return stock[indice]["cantidad"] + contar_stock_recursivo(stock, indice + 1)
 
 
 def obtener_precios(stock):
@@ -364,6 +485,8 @@ def estadisticas(stock):
     print("Precio maximo:", maximo)
     print("Promedio:", int(promedio))
     print("Suma de precios:", suma)
+    #Total de unidades calculado en forma recursiva
+    print("Unidades totales en stock (calculado en forma recursiva):", contar_stock_recursivo(stock))
 
 
 def estadisticas_especificas(stock):
@@ -530,17 +653,64 @@ def prueba_busqueda_producto():
     else:
         print("Prueba Búsqueda (ID Inexistente): ERROR")
 
+
+def prueba_busqueda_recursiva():
+    """
+    Función: prueba_busqueda_recursiva
+    Propósito: probar específicamente la función recursiva
+    buscar_producto_recursivo(), tanto para un ID que existe como
+    para uno que no existe.
+    """
+
+    stock_prueba = [
+        {"colaborador": ("Axel", 44123456), "id": 101, "nombre": "Teclado", "precio": 1500.0, "cantidad": 2},
+        {"colaborador": ("Ale", 44123457), "id": 102, "nombre": "Mouse", "precio": 500.0, "cantidad": 5},
+    ]
+
+    encontrado = buscar_producto_recursivo(stock_prueba, 102)
+    no_encontrado = buscar_producto_recursivo(stock_prueba, 999)
+
+    if encontrado is not None and encontrado["id"] == 102 and no_encontrado is None:
+        print("Prueba Búsqueda Recursiva: CORRECTA")
+    else:
+        print("Prueba Búsqueda Recursiva: ERROR")
+
+
+def prueba_conteo_recursivo():
+    """
+    Función: prueba_conteo_recursivo
+    Propósito: probar que contar_stock_recursivo() sume correctamente
+    las cantidades de todos los productos.
+    """
+
+    stock_prueba = [
+        {"cantidad": 2},
+        {"cantidad": 5},
+        {"cantidad": 3},
+    ]
+
+    resultado = contar_stock_recursivo(stock_prueba)
+
+    if resultado == 10:
+        print("Prueba Conteo Recursivo: CORRECTA")
+    else:
+        print("Prueba Conteo Recursivo: ERROR")
+
+
 def ejecutar_todas_las_pruebas():
     """
     Función: ejecutar_todas_las_pruebas
     Propósito: correr de forma automática las pruebas unitarias, 
     evaluando escenarios tanto positivos como negativos mediante 
-    la comparación. Simula las funciones de CÁLCULO DE PRECIO y BUSCAR POR ID.
+    la comparación. Simula las funciones de CÁLCULO DE PRECIO, BUSCAR POR ID
+    y las funciones recursivas de búsqueda y conteo.
     """
 
     print("\n===== CORRIENDO PRUEBAS AUTOMÁTICAS =====")
     prueba_calculo_precios()
     prueba_busqueda_producto()
+    prueba_busqueda_recursiva()
+    prueba_conteo_recursivo()
     print("=========================================")
 
 
@@ -564,6 +734,8 @@ def info_funciones():
     print("9. dnis_unicos")
     print("10. eliminar_producto")
     print("11. ejecutar_todas_las_pruebas")
+    print("12. buscar_producto_recursivo")
+    print("13. contar_stock_recursivo")
 
     try:
         opcion = int(input("\nElija una función: "))
@@ -592,6 +764,10 @@ def info_funciones():
             help(eliminar_producto)
         elif opcion == 11:
             help(ejecutar_todas_las_pruebas)
+        elif opcion == 12:
+            help(buscar_producto_recursivo)
+        elif opcion == 13:
+            help(contar_stock_recursivo)
         else:
             print("Opción inválida")
     
@@ -615,71 +791,100 @@ def main():
     except FileNotFoundError: 
         stock = []
 
-    #Guarda el email ingresado
-    usuario_mail = validar_usuario()
+    while True:
+        print("\n===== ACCESO =====")
+        print("1.Registrarse.")
+        print("2.Iniciar sesión.")
+        print("0.Salir del programa.")
 
-    print(f"Bienvenido, {usuario_mail}")
+        opcion=input("\nOpción: ")
+
+        if opcion=="1":
+            registrar_usuario()
+
+        elif opcion=="2":
+            usuario_mail=validar_usuario()
+
+            if usuario_mail is not None:
+                print(f"Bienvenido, {usuario_mail}")
 
     #Bucle principal del programa que mantiene activo el menu
-    while True:
+                while True:
 
-        print("\n====== MENU ======")
-        print("1. Cargar producto")
-        print("2. Actualizar producto")
-        print("3. Ordenar productos (Menor a Mayor)")
-        print("4. Mostrar productos")
-        print("5. Buscar producto")
-        print("6. Estadisticas")
-        print("7. Ver productos con cantidad < 5")
-        print("8. Eliminar producto")
-        print("9. DNIs unicos")
-        print("10. Informacion de funciones")
-        print("11. Ejecutar pruebas unitarias")
-        print("0. Salir")
+                    print("\n====== MENU ======")
+                    print("1. Cargar producto")
+                    print("2. Actualizar producto")
+                    print("3. Ordenar productos (Menor a Mayor)")
+                    print("4. Mostrar productos")
+                    print("5. Buscar producto")
+                    print("6. Estadisticas")
+                    print("7. Ver productos con cantidad < 5")
+                    print("8. Eliminar producto")
+                    print("9. DNIs unicos")
+                    print("10. Informacion de funciones")
+                    print("11. Ejecutar pruebas unitarias")
+                    print("12. Contar stock total (recursivo)")
+                    print("0. Salir")
 
-        try:
-            opcion = int(input("\nOpción: "))
+                    try:
+                        opcion = int(input("\nOpción: "))
 
-            if opcion == 1:
-                cargar_datos(stock)
+                        if opcion == 1:
+                            cargar_datos(stock, usuario_mail)
 
-            elif opcion == 2:
-                actualizar_producto(stock)
+                        elif opcion == 2:
+                            actualizar_producto(stock)
 
-            elif opcion == 3:
-                ordenar_productos(stock)
+                        elif opcion == 3:
+                            ordenar_productos(stock)
 
-            elif opcion == 4:
-                mostrar_productos(stock)
+                        elif opcion == 4:
+                            mostrar_productos(stock)
 
-            elif opcion == 5:
-                buscar_producto(stock)
+                        elif opcion == 5:
+                            buscar_producto(stock)
 
-            elif opcion == 6:
-                estadisticas(stock)
+                        elif opcion == 6:
+                            estadisticas(stock)
 
-            elif opcion == 7:
-                estadisticas_especificas(stock)
+                        elif opcion == 7:
+                            estadisticas_especificas(stock)
 
-            elif opcion == 8:
-                stock = eliminar_producto(stock)
+                        elif opcion == 8:
+                            stock = eliminar_producto(stock)
 
-            elif opcion==9:
-                dnis_unicos(stock)
+                        elif opcion==9:
+                            dnis_unicos(stock)
                 
-            elif opcion == 10:
-                info_funciones()
+                        elif opcion == 10:
+                            info_funciones()
 
-            elif opcion == 11:
-                ejecutar_todas_las_pruebas()
-                
-            elif opcion == 0:
-                print("Programa cerrado")
-                break
+                        elif opcion == 11:
+                            ejecutar_todas_las_pruebas()
 
-            else:
-                print("Use opciones del menu")
+                        elif opcion == 12:
+                            print("\n===== CONTEO RECURSIVO =====")
+                            if not stock:
+                                print("No hay productos")
+                            else:
+                                total = contar_stock_recursivo(stock)
+                                print(f"Unidades totales en stock: {total}")
                 
-        except ValueError:
-            print("Error. Ingrese valores numéricos.")
+                        elif opcion == 0:
+                            print("Sesion cerrada.")
+                            break
+
+                        else:
+                            print("Use opciones del menu")
+                
+                    except ValueError:
+                        print("Error. Ingrese valores numéricos.")
+
+        elif opcion == "0":
+            print("Programa cerrado")
+            return
+        
+        else:
+            print("Use opciones del menu")
+
 main()
